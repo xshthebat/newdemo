@@ -16,7 +16,7 @@ $(function() {
 	}, 1000)
 })
 //手撕jsonp格式的jquery
-//obj参数列表， fn返回值函数,name请求到的window全局变量名  fn回掉函数
+//obj参数列表， fn返回值函数,name请求到的window全局变量名  fn回调函数
 $.fn.extend({
 	newjsonp: function(url, obj, name, fn) {
 		var newurl = url;
@@ -188,8 +188,58 @@ $.fn.extend({
 				$(window).unbind("resize");
 			})
 		}
+	},
+	fanyi:{
+		//初始
+		init:function(){
+			//获取参数
+			var $text1=$("#text1");//文本内容
+			var $text2=$("#text2");//翻译内容
+			var $lau1=$("#lau1");//from
+			var $lau2=$("#lau2");//to
+			var $go=$("#fgo");//Go
+			var $back=$("#fback");//Back
+			//绑定事件
+			$go.click(function(){
+				if($text1.val()!=""){
+				// 每次的值 console.log($text1.val(),$lau1.val(),$lau2.val());、
+				$.fn.fanyi.post($text1.val(),$lau1.val(),$lau2.val(),function(){
+				  //键入新值
+				  $.fn.fanyi.put($text2,window.thetext.result.result);
+				});
+				$go.addClass('disabled');
+				$go.unbind();
+			 }
+			});
+			$back.click(function(){
+				if(window.thetext){
+					//初始化所有
+					console.log("haha");
+					$back.unbind();
+					$.fn.fanyi.reset($text1,$text2,$go);
+				}
+			})
+		},
+		//post 发送请求 fn为请求到时的回调函数
+		post:function(text1,lau1,lau2,fn){
+              $.fn.newjsonp("http://api.jisuapi.com/translate/translate?appkey=135bb18481932b78&type=baidu",{
+              	from:lau1,
+              	to:lau2,
+              	text:text1
+              },"thetext",fn);
+		},
+		put:function(text2,text){
+            text2.html(text);
+		},
+		reset:function(text1,text2,go){
+              text1.val('');
+              text2.html('');
+              go.removeClass('disabled');
+              $.fn.fanyi.init();
+		}
 	}
 });
 $(document).ready(function() {
 	$.fn.tianqi.getValue($("#postcity"));
+	$.fn.fanyi.init();
 });
